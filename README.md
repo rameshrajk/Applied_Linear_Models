@@ -1,0 +1,2 @@
+# Applied_Linear_Models
+Assignments completed as part of an 'Applied Linear Models' course. Essentially an introduction to linear statistical models and their applications to empirical data using the statistical programming language R. Explores linear regression models, multiple linear regression models, model fitting and validation, diagnostic measures, detection of outliers and influential observations, variable selection, etc. in depth. Includes both R notebook and knitted PDF versions of each assignment.
