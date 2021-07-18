@@ -1,0 +1,153 @@
+---
+title: "STAT4355HW6"
+subtitle: This is an R script with the purpose of running multiple linear regression
+  on football data
+output: html_notebook
+---
+
+### (a)
+```{r}
+#load the data
+ftbl <- read.csv(file = 'football.csv')
+#build linear model
+lm1 <- lm(y~x2+x7+x8, data = ftbl)
+#model summary
+summary(lm1)
+sigma(lm1)^2
+```
+Fitted linear model:
+
+y-hat = -1.808372 + 0.003598x2 + 0.193960x7 - 0.004816x8  
+
+i.
+
+(σ^)^2 = 2.91125
+
+ii.
+
+R^2 = 0.7863
+
+iii.
+
+adjusted R^2 = 0.7596
+
+### (b)
+```{r}
+#test whether β2 = -β8
+library(multcomp)
+D1 <- matrix(c(0,1,0,1),1,4)
+D1
+d1 <- 0
+qf(0.05, 1, 24, lower.tail=FALSE)
+
+mytest1 <- glht(lm1, linfct=D1, rhs=d1)
+summary(mytest1, test=Ftest())
+```
+i.
+
+H0: β2 + β8 != 0
+
+H1: β2 + β8 = 0
+
+ii.
+
+D = [0,1,0,1] d = 0
+
+iii.
+
+β-hat ∼ N(β, σ2((X'X)^−1))
+
+Dβ-hat ∼ N(Dβ, σ2D((X'X)^−1)D')
+
+iv.
+
+F0 = ((Dβ-hat-d)'[D((X'X)^-1)D'](Dβ-hat-d)/r)/(SSE/(n-p))
+
+v.
+
+F(1, 24)
+
+vi.
+
+F = 0.575409
+
+p = 0.4555029
+
+As p-value 0.456 is more than 0.05 = α, we accept H0 and conclude that passing yardage (β2) and the regression parameter for the opponents’ yards rushing (β8) are not the same in magnitude, opposite in direction.
+
+### (c)
+```{r}
+#test whether β2 = 0, β8 = 0, β7 = 0.2
+library(multcomp)
+D2 <- matrix(c(0,0,0,0,0,0,0,0,0,0,1,0),3,4)
+D2
+d2 <- c(0,0,0.2)
+qf(0.05, 1, 24, lower.tail=FALSE)
+
+mytest2 <- glht(lm1, linfct=D2, rhs=d2)
+summary(mytest2, test=Ftest())
+```
+i. 
+
+H0: β2 = 0, β8 = 0, β7 = 0.2
+
+H1: β2 != 0, β8 != 0, β7 != 0.2
+
+ii. 
+
+D = [(0,0,0,0),(0,0,0,0),(0,0,1,0)] (each parenthesis is a row)
+
+d = (0, 0, 0.2)
+
+iii. 
+
+β-hat ∼ N(β, σ2((X'X)^−1))
+
+Dβ-hat ∼ N(Dβ, σ2D((X'X)^−1)D')
+
+iv. 
+
+F0 = ((Dβ-hat-d)'[D((X'X)^-1)D'](Dβ-hat-d)/r)/(SSE/(n-p))
+
+v. 
+
+F = 14.22072
+
+p = 0.0009377699
+
+As p-value 0.001 is less than 0.05 = α, we reject H0 and conclude that passing yardage and the regression parameter for the opponents’ yards rushing impact the number of games won and a unit increase in the team's rushing playes percent doesn't increase the number of games by 0.2.
+
+### (d)
+```{r}
+#99 % confidence interval on the four individual coefficients
+confint(lm1,level=0.99)
+```
+
+### (e)
+```{r}
+#99 % confidence intervals on the mean number of games 
+#i.
+newx1 <- data.frame(x2=2300,x7=56,x8=2100)
+predict(lm1, newx1, interval='confidence', level=0.99)
+#ii .
+newx2 <- data.frame(x2=2900,x7=61,x8=1900)
+predict(lm1, newx2, interval='confidence', level=0.99)
+```
+### (f)
+```{r}
+#99 % confidence intervals on a future observation 
+#i.
+newx3 <- data.frame(x2=2300,x7=56,x8=2100)
+predict(lm1, newx3, interval='prediction', level=0.99)
+#ii .
+newx4 <- data.frame(x2=2900,x7=61,x8=1900)
+predict(lm1, newx4, interval='prediction', level=0.99)
+```
+### (f)
+The lengths of the PIs from (f) are are greater than the corresponding CIs from (e). Prediction intervals must account for both the uncertainty in estimating the population mean, plus the random variation of the individual values; as it takes into account the true error, the prediction interval is wider.
+
+### (h)
+R code is within this notebook pdf.
+
+
+

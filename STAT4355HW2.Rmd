@@ -1,0 +1,41 @@
+---
+title: "STAT 4355 HW2"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+### a)
+```{r}
+#import data
+sysbp=read.csv("hw2_systolic_bp.csv")
+y=sysbp$sys.bp
+x=sysbp$ï..weight
+#fit model
+lmsb=lm(y~x)
+summary(lmsb)
+```
+### b)
+y-hat = 69.10437 + 0.41942x
+
+### c)
+An intercept of 69.10437 means the value of systolic pressure is 69.10437 when the weight is zero and a slope of 0.41942 means for a unit change in the weight, systolic pressure increases by 0.4194 on average.
+
+### d)
+Null hypothesis: H0: β1=0
+<br />
+Alt. hypothesis: H1: β1/=0
+
+t value of 5.979 and p value of 3.59e-06 < 0.05 => reject H0 so weight is statistically significant at 5% significance level
+
+### e)
+```{r}
+lmsb2 <- lm(y~x+offset(-50*x))
+summary(lmsb2)
+```
+Null hypothesis: H0: β1=-50
+<br />
+Alt. hypothesis: H1: β1/=-50
+
+t value of 718.714 and p value of 2e-16 < 0.05 => reject H0 at 5% significance level so slope is not equal to -50.
+

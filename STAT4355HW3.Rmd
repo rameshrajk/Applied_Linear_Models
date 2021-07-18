@@ -1,0 +1,63 @@
+---
+title: "STAT4355HW3"
+author: "Ramesh Kanakala"
+output: html_notebook
+---
+
+### a)
+```{r}
+#import data
+sysbp=read.csv("hw2_systolic_bp.csv")
+y=sysbp$sys.bp
+x=sysbp$ï..weight
+#plot both data and abline
+plot(x, y, xlab="Weight", ylab="Systolic Blood Pressure")
+lmsb1=lm(y~x)
+plot(x, y, xlab="Weight", ylab="Systolic Blood Pressure")
+abline(lmsb1, col="blue")
+```
+
+### b)
+```{r}
+#coefficent of determination
+rsq <- summary(lmsb1)$r.squared
+print(paste("Coefficient of Determination = ", rsq))
+#R^2 = SSR/SST => SSR = R^2*SST
+sst = sum((y - mean(y))^2)
+print(paste("SST = ", sst))
+ssr = sum((fitted(lmsb1) - mean(y))^2)
+print(paste("SSR = ", ssr))
+```
+
+### c)
+```{r}
+#99% confidence interval on ...
+#slope and intercept
+confint(lmsb1, level = 0.99)
+
+#mean response at x = 160
+predict(lmsb1, data.frame(x = 160), interval = "confidence", conf.level = .99)
+
+#mean response at x = 180
+predict(lmsb1, data.frame(x = 180), interval = "confidence", conf.level = .99)
+
+#mean response at x = 200
+predict(lmsb1, data.frame(x = 200), interval = "confidence", conf.level = .99)
+
+#26 future observations whose weights are identical to the males’ in the dataset
+predout <- predict(lmsb1, data.frame(x = x), interval = "predict", predict.level = .99)
+predout
+```
+
+### d)
+```{r}
+#merge data points and prediction outcome object
+pred.bp <- cbind(sysbp, predout)
+library("ggplot2")
+#confidence interval curve
+p <- ggplot(pred.bp, aes(x, y)) + geom_point() + stat_smooth(method = lm)
+p
+#prediction interval curve 
+p + geom_line(aes(y = lwr), color = "red", linetype = "dashed")+
+geom_line(aes(y = upr), color = "red", linetype = "dashed")
+```

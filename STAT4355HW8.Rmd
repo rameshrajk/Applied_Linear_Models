@@ -1,0 +1,116 @@
+---
+title: "STAT4355HW8"
+author: "Ramesh Kanakala"
+output: html_notebook
+---
+
+### Problem 1
+### (a)
+```{r}
+#load the data
+wind <- read.csv(file = 'windmill.csv')
+
+#Box-Cox transformation
+library(car)
+boxcox.wind <- boxCox(wind$y ~ wind$x, 
+                         lambda=seq(-2,2,1/10))
+boxcox.wind # y=log-Likelihood, x=lambda
+boxcox.wind$x[which.max(boxcox.wind$y)]
+```
+
+### (b)
+```{r}
+#build linear model
+lm1 <- lm(y~x, wind)
+
+#scatterplot with regression line
+plot(wind$x, wind$y) + abline(lm1) 
+
+#normal probability plot
+qqPlot(lm1)
+
+#studentized residuals versus the fitted values plot
+par(mfrow=c(1,1))
+residualPlot(lm1, type="rstudent", quadratic=F, col = "dodgerblue",
+             pch=16, cex=1.5, cex.axis=1.5, cex.lab=1.5)
+
+#influential analysis
+myInf <- influence.measures(lm1)
+myInf
+summary(myInf)
+
+dfbetasPlots(lm1,intercept=T)
+influenceIndexPlot(lm1)
+```
+
+### Problem 2
+### (a)
+```{r}
+#load the data
+patient <- read.table('patient.txt', header=T)
+x1 <- patient[,2] # age
+x2 <- patient[,3] # severity
+x3 <- patient[,4] # surgical-medical
+x4 <- patient[,5] # anxiety
+y <- patient[,6]  # satisfaction
+
+x11=x12=x13=x14=array(0,length(y)) # n by 1 vector of 0's
+x11[x1<30] <- 1          # if age group 1
+x12[30<=x1 & x1<40] <- 1 # if age group 2
+x13[40<=x1 & x1<50] <- 1 # if age group 3
+x14[50<=x1 & x1<60] <- 1 # if age group 4
+
+fit <- lm(y~x11+x12+x13+x14+x2+x3+x4)
+
+#test for a general linear hypothesis
+library(multcomp)
+D <- matrix(0,3,8)
+D[1,2]=D[2,3]=D[3,4]=1
+D
+
+d <- c(0,0,0)
+mytest <- glht(fit, linfct=D, rhs=d)  # from page 15
+summary(mytest,test=Ftest())
+```
+
+i. 
+
+H0: β11 = β12 = β13 = 0
+
+H1: β11 or β12 or β13 /= 0
+
+ii.
+
+D =
+01000000
+00100000
+00010000
+
+d = 
+000
+
+iii.
+
+As F = 11.78488 and p = 0.0002035494 < 0.05, we reject the null hypothesis and confirm either β11 or β12 or β13 does not equal zero.
+
+### (b)
+```{r}
+x11=x12=array(0,length(y))
+x11[x1<50] <- 1         # if age group 1
+x12[50<=x1 & x1<60] <- 1 # if age group 2
+
+fit <- lm(y~x11+x12+x2+x3+x4)
+summary(fit)
+```
+x11: With all other variables remaining the same, if a patient is in the age group under 50, satisfaction is associated with a 48.8871 increase on average.
+
+x12: With all other variables remaining the same, if a patient is in the age group between 50 and 60, satisfaction is associated with a 32.6479 increase on average.
+
+x2: With all other variables remaining the same, for a one unit increase in severity, satisfaction is associated with a 0.4358 decrease on average.
+
+x3: With all other variables remaining the same, if a patient is a medical patient, satisfaction is associated with a 1.7310 decrease on average.
+
+x4: With all other variables remaining the same, for a one unit increase in anxiety, satisfaction is associated with a 4.9538 increase on average.
+
+### R code is within this notebook
+

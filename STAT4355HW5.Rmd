@@ -1,0 +1,138 @@
+---
+title: "STAT4355HW5"
+subtitle: This is an R script with the purpose of running multiple linear regression
+  on football data
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+
+### (a)
+```{r}
+#load the data
+ftbl <- read.csv(file = 'football.csv')
+#9 scatterplots for number of games won (y) against other vars
+plot(ftbl$x1, ftbl$y)
+plot(ftbl$x2, ftbl$y)
+plot(ftbl$x3, ftbl$y)
+plot(ftbl$x4, ftbl$y)
+plot(ftbl$x5, ftbl$y)
+plot(ftbl$x6, ftbl$y)
+plot(ftbl$x7, ftbl$y)
+plot(ftbl$x8, ftbl$y)
+plot(ftbl$x9, ftbl$y)
+```
+### (b)
+```{r}
+#build model with most associated vars
+lm1 <- lm(y~x1+x2+x5+x7+x8, data = ftbl)
+#model summary
+summary(lm1)
+sigma(lm1)^2
+```
+Fitted linear model:
+
+y-hat = -0.0516532 + 0.0008480x1 + 0.0034689x2 + 0.0103765x5 + 0.1336928x7 + -0.0047048x8 
+
+(i)
+(σ^)^2 = 3.126997
+(ii)
+R^2 = 0.7896
+(iii)
+adjusted R^2 = 0.7418
+
+### (c)
+βˆ1: For a one unit increase in rushing yardage, number of games won is associated with a 0.0008480 increase on average.
+
+βˆ2: For a one unit increase in passing yardage, number of games won is associated with a 0.0034689 increase on average.
+
+βˆ5: For a one unit increase in turnover differential, number of games won is associated with a 0.0103765 increase on average.
+
+βˆ7: For a one unit increase in percentage of rushing plays, number of games won is associated with a 0.1336928 increase on average.
+
+βˆ8: For a one unit increase in  opponents’ rushing yardage, number of games won is associated with a 0.0047048 decrease on average.
+
+(σ^)^2: The model on average has a squared error of 3.126997.
+
+### (d)
+```{r}
+#anova from pg.46
+fit <- lm(y~x1+x2, data=ftbl)
+anova(fit)
+
+#Source of Variation   SS      DF      MS      F0 
+#Regression          198.41    2     99.205   19.2926
+#Residual            128.553   25    5.14212 
+#Total               326.963   27   
+```
+ANOVA Table commented in code above^
+
+### (e)
+```{r}
+#anova from pg.47
+fit0<-lm(y~1, data=ftbl)
+anova(fit0, fit)
+
+#Source of Variation   SS      DF      MS      F0 
+#Regression          198.41    2     99.205   19.293
+#Residual            128.55    25     5.142 
+#Total               326.96    27    
+```
+ANOVA Table commented in code above^
+
+### (f)
+```{r}
+#regression significance test at level of 0.05
+qf(0.05, 2, 25, lower.tail=FALSE)
+```
+The two ANOVA tables are the same.
+
+### (g)
+```{r}
+#Test the value of passing yardage given all the other 4 predictors at significance level of 0.05
+reduced <- lm(y~x1+x5+x7+x8, data = ftbl)
+anova(reduced, lm1)
+```
+i. 
+
+H0: βˆ2 = 0
+
+H1: βˆ2 != 0
+
+ii. F-distribution
+
+iii. 
+F = 20.438 
+
+p-value = 0.000169
+
+p-value is very small, much less than .05 and F is quite large; we do reject the null hypothesis and conclude that x2, passing yardage, is a significant contributor.
+
+### (h)
+```{r}
+#investigate the contribution of the 3 predictors
+reduced1 <- lm(y~x2+x8, data = ftbl)
+anova(reduced1, lm1)
+```
+i. 
+
+H0: βˆ1 = 0, βˆ5 = 0, βˆ7 = 0
+
+H1: βˆ1 != 0, βˆ5 != 0, βˆ7 != 0
+
+ii. F-distribution
+
+iii. 
+
+F = 1.6144
+
+p-value = 0.2147
+
+p-value is not less than .05 and F is quite small; we do not reject the null hypothesis and conclude that x1, x5, and x7 are not significant contributors.
+
+### (i)
+I prefer the reduced model with predictors x2 and x8 as it has a higher RSS and is more significant.
+
+### (j)
+R code is within this notebook pdf
